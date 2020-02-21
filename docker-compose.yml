@@ -1,0 +1,20 @@
+mysql-svc:
+  image: percona:5.7
+  environment:
+    MYSQL_DATABASE: hospitales
+    MYSQL_USER: test
+    MYSQL_PASSWORD: 1234
+    MYSQL_ROOT_PASSWORD: 1234
+  restart: always
+  command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --init-connect='SET NAMES UTF8;' --innodb-flush-log-at-trx-commit=0
+  ports:
+    - "3312:3306"
+
+flyway:
+  container_name: flyway
+  image: boxfuse/flyway
+  command: -url=jdbc:mysql://mysql-svc:3306?verifyServerCertificate=false&useSSL=true -schemas=hospitales -user=root -password=1234 clean migrate
+  volumes:
+    - "./database:/flyway/sql"
+  links:
+    - mysql-svc
